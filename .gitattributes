@@ -1,0 +1,9 @@
+# Set the default behavior, in case people don't have core.autocrlf set.
+* text=auto
+
+# README/LICENSE/CHANGELOG must be viewable in notepad,
+# so it should always have Windows linebreaks
+changelog.md text eol=crlf
+THIRD-PARTY.txt text eol=lf
+LICENSE-LINKS.xml text eol=lf
+

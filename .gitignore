@@ -1,0 +1,17 @@
+/target/
+/docs//LICENSE-LINKS.xml
+/THIRD-PARTY.txt
+/Problems.md
+/Todo.md
+/docs/
+/firmware/
+/logs/
+/build.sh
+/mavenBuild.log
+
+
+# environment settings
+.project
+.classpath
+.settings
+/.vscode

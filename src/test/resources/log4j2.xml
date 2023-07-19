@@ -1,0 +1,52 @@
+<Configuration status="WARN">
+  <Appenders>
+    <Console name="Console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1} %C{1}.java:%L - %m%n" />
+    </Console>
+
+    <RollingFile name="RollingFile" fileName="logs/logging.log" filePattern="logs/logging-%d{MM-dd-yyyy}-%i.log.zip">
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c %C{1}:%L - %m%n" />
+      <Policies>
+        <OnStartupTriggeringPolicy />
+        <TimeBasedTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="20 MB" />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="logs" maxDepth="2">
+          <IfFileName glob="logging-*.log.zip" />
+          <IfLastModified age="31d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+    <RollingFile name="Connection" fileName="logs/connection.log" filePattern="logs/connection-%d{MM-dd-yyyy}-%i.log.zip">
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c %C{1}:%L - %m%n" />
+      <Policies>
+        <OnStartupTriggeringPolicy />
+        <TimeBasedTriggeringPolicy />
+        <SizeBasedTriggeringPolicy size="20 MB" />
+      </Policies>
+      <DefaultRolloverStrategy>
+        <Delete basePath="logs" maxDepth="2">
+          <IfFileName glob="connection-*.log.zip" />
+          <IfLastModified age="31d" />
+        </Delete>
+      </DefaultRolloverStrategy>
+    </RollingFile>
+  </Appenders>
+  <Loggers>
+    <Root level="trace">
+      <AppenderRef ref="Console" level="info" />
+       <AppenderRef ref="RollingFile" level="trace" />
+    </Root>
+   
+    <Logger name="com.metratec.lib.ips" level="debug" additivity="false">
+      <AppenderRef ref="Connection" level="trace" />
+    </Logger>
+    <!--  Disable the connection logger (warn)
+    <Logger name="com.metratec.lib.connection" level="warn" additivity="true" />
+    -->
+    <!-- set logger level
+      <Logger name="org.eclipse.jetty" level="warn" additivity="true" />
+     -->
+  </Loggers>
+</Configuration>

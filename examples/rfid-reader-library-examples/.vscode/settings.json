@@ -1,0 +1,10 @@
+{
+    "java.project.sourcePaths": ["src"],
+    "java.project.outputPath": "bin",
+    "java.project.referencedLibraries": {
+        "include": [
+            "lib/**/*.jar",
+            "../metratec-rfid-reader-library-4.0-jar-with-dependencies.jar"
+        ]
+    }
+}
