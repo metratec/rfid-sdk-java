@@ -4,6 +4,12 @@ Java library for controlling the metratec rfid readers
 
 ## Version 4.0
 
+### 4.1
+
+* HF/ISO Reader: Request commands added to send manufacturer specific commands to the transponders
+
+### 4.0
+
 * event handler can be subscribe (tag found, tag lost, reader status)
 * inventories return List with Transponder objects
 * reader of the generation 2 added (PulsarLR)

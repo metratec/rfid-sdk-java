@@ -224,8 +224,8 @@ public class QuasarLR extends ISOReader {
    *         </ul>
    */
   @Override
-  protected String sendRequest(String reqCommand) throws CommConnectionException, RFIDReaderException {
-    String[] answers = communicateSynchronized(reqCommand);
+  protected String sendRequest(String command, String reqCommand, boolean automaticCRC) throws CommConnectionException, RFIDReaderException {
+    String[] answers = communicateSynchronized(command, reqCommand, automaticCRC ? "CRC" : null);
     if (4 == answers.length) {
       if (answers[3].startsWith("NCL")) {
         // no collision detect

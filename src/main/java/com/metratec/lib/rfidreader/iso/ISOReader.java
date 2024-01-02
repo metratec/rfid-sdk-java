@@ -299,6 +299,95 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   }
 
   /**
+   * Send a reading request to tags (REQ). With this method you can send manufacturer specific commands.
+   * 
+   * @param tagCommand the command defined in the ISO 15693-3. For example '022000' to read the block 0 of a tag
+   * @return the read data
+   * @throws RFIDReaderException possible RFIDErrorCodes:
+   *         <ul>
+   *         <li>CCE, CRC communication error</li>
+   *         <li>CLD, Collision detected</li>
+   *         <li>CER, CRC error</li>
+   *         <li>TNR, Tag not responding</li>
+   *         <li>RDL, Data length error</li>
+   *         <li>TEC, Tag Error code</li>
+   *         <li>NER, No expected response</li>
+   *         </ul>
+   * @throws CommConnectionException if an communication error occurs
+   */
+  public String sendReadingRequest(String tagCommand) throws CommConnectionException, RFIDReaderException {
+    return sendRequest("REQ", tagCommand, true);
+  }
+
+  /**
+   * Send a reading request directly to tags (DRQ). With this method you can send manufacturer specific commands.
+   * 
+   * @param tagCommand the command defined in the ISO 15693-3. For example '022000' to read the block 0 of a tag
+   * @return the read data
+   * @throws RFIDReaderException possible RFIDErrorCodes:
+   *         <ul>
+   *         <li>CCE, CRC communication error</li>
+   *         <li>CLD, Collision detected</li>
+   *         <li>CER, CRC error</li>
+   *         <li>TNR, Tag not responding</li>
+   *         <li>RDL, Data length error</li>
+   *         <li>TEC, Tag Error code</li>
+   *         <li>NER, No expected response</li>
+   *         </ul>
+   * @throws CommConnectionException if an communication error occurs
+   */
+  public String sendDirectReadingRequest(String tagCommand) throws CommConnectionException, RFIDReaderException {
+    return sendRequest("DRQ", tagCommand, true);
+  }
+
+  /**
+   * Send a writing request to tags (WRQ). Use this if the data on the tag is to be changed/written. With this method
+   * you can send manufacturer specific commands.
+   * 
+   * @param tagCommand the command defined in the ISO 15693-3. For example '022100A000B000' to write 'A000B000' to the
+   *        block 0 of a tag
+   * @return the read data
+   * @throws RFIDReaderException possible RFIDErrorCodes:
+   *         <ul>
+   *         <li>CCE, CRC communication error</li>
+   *         <li>CLD, Collision detected</li>
+   *         <li>CER, CRC error</li>
+   *         <li>TNR, Tag not responding</li>
+   *         <li>RDL, Data length error</li>
+   *         <li>TEC, Tag Error code</li>
+   *         <li>NER, No expected response</li>
+   *         </ul>
+   * @throws CommConnectionException if an communication error occurs
+   */
+  public void sendWritingRequest(String tagCommand) throws CommConnectionException, RFIDReaderException {
+    sendRequest("WRQ", tagCommand, true);
+  }
+
+  /**
+   * Send a writing request directly to tags (DWQ). Use this if the data on the tag is to be changed/written. With this method
+   * you can send manufacturer specific commands.
+   * 
+   * @param tagCommand the command defined in the ISO 15693-3. For example '022100A000B000' to write 'A000B000' to the
+   *        block 0 of a tag
+   * @return the read data
+   * @throws RFIDReaderException possible RFIDErrorCodes:
+   *         <ul>
+   *         <li>CCE, CRC communication error</li>
+   *         <li>CLD, Collision detected</li>
+   *         <li>CER, CRC error</li>
+   *         <li>TNR, Tag not responding</li>
+   *         <li>RDL, Data length error</li>
+   *         <li>TEC, Tag Error code</li>
+   *         <li>NER, No expected response</li>
+   *         </ul>
+   * @throws CommConnectionException if an communication error occurs
+   */
+  public void sendDirectWritingRequest(String tagCommand) throws CommConnectionException, RFIDReaderException {
+    sendRequest("DWQ", tagCommand, true);
+  }
+
+
+  /**
    * get the reader answer from an request command acc to ISO15693
    * 
    * @param reqCommand request command
@@ -320,8 +409,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    *         <li>UNHANDLED_ERROR</li>
    *         </ul>
    */
-  protected String sendRequest(String reqCommand) throws CommConnectionException, RFIDReaderException {
-    String[] answers = communicateSynchronized(reqCommand);
+  protected String sendRequest(String command, String reqCommand, boolean automaticCRC)
+      throws CommConnectionException, RFIDReaderException {
+    String[] answers = communicateSynchronized(command, reqCommand, automaticCRC ? "CRC" : null);
     try {
       int index = answers.length - 1;
       if (answers[index].startsWith("NCL")) {
@@ -380,7 +470,6 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
     }
     StringBuffer command = new StringBuffer();
     // prepare command
-    command.append("REQ ");
     switch (sri) {
       case SingleSubcarrier_100percentASK:
       case SingleSubcarrier_10percentASK:
@@ -404,10 +493,10 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
         }
         break;
     }
-    command.append(String.format("%02X crc", blockNumber));
+    command.append(String.format("%02X", blockNumber));
     HfTag tag = null;
     try {
-      String response = sendRequest(command.toString());
+      String response = sendReadingRequest(command.toString());
       tag = new HfTag(tagID);
       tag.setData(response);
       return tag;
@@ -444,7 +533,6 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   public void setTagQuiet(String tagID) throws CommConnectionException, RFIDReaderException {
     StringBuilder command = new StringBuilder();
     // prepare command
-    command.append("WRQ ");
     switch (sri) {
       case SingleSubcarrier_100percentASK:
       case SingleSubcarrier_10percentASK:
@@ -459,7 +547,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
         break;
     }
     try {
-      sendRequest(command.toString());
+      sendWritingRequest(command.toString());
     } catch (RFIDReaderException ex) {
       // TNR is the expected response
       if (ex.getErrorCode() != RFIDErrorCodes.TNR) {
@@ -542,7 +630,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
       } else {
         errorCount = RETRY_COUNT;
         tagData.append(response.getData());
-        if(null == tag){
+        if (null == tag) {
           tag = response;
         }
       }
@@ -642,42 +730,41 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
     if (0 > blockNumber || blockNumber > 255) {
       throw new RFIDReaderException(RFIDErrorCodes.WPA, "wrong Blocknumbers - 0<=blockNumber<256 ");
     }
-    StringBuffer command = new StringBuffer();
+    StringBuffer tagCommand = new StringBuffer();
     // prepare command
-    command.append("WRQ ");
     switch (sri) {
       case SingleSubcarrier_100percentASK:
       case SingleSubcarrier_10percentASK:
         if (null == tagID) {
           // not addressed mode
           if (optionFlag)
-            command.append("4221");
+            tagCommand.append("4221");
           else
-            command.append("0221");
+            tagCommand.append("0221");
         } else {
           // addressed mode
           if (optionFlag)
-            command.append("6221");
+            tagCommand.append("6221");
           else
-            command.append("2221");
-          command.append(tagID);
+            tagCommand.append("2221");
+          tagCommand.append(tagID);
         }
         break;
       case DoubleSubcarrier_100percentASK:
         if (null == tagID) {
           // not addressed mode
-          command.append("0321");
+          tagCommand.append("0321");
         } else {
           // addressed mode
-          command.append("2321");
-          command.append(tagID);
+          tagCommand.append("2321");
+          tagCommand.append(tagID);
         }
         break;
     }
-    command.append(String.format("%02X%s crc", blockNumber, data));
+    tagCommand.append(String.format("%02X%s", blockNumber, data));
     HfTag tag = null;
     try {
-      sendRequest(command.toString());
+      sendWritingRequest(tagCommand.toString());
       tag = new HfTag(tagID);
       tag.setData(data);
       return tag;
@@ -863,8 +950,8 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
      */
     if (null == tagID)
       throw new RFIDReaderException(RFIDErrorCodes.NUL, "tag ID is null");
-    String sendData = String.format("REQ 222B%s crc", tagID);
-    String answer = sendRequest(sendData);
+    String tagCommand = String.format("222B%s", tagID);
+    String answer = sendReadingRequest(tagCommand);
     boolean isDSFID = false;
     boolean isAFI = false;
     boolean isVICCMS = false;
@@ -917,9 +1004,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    *         </ul>
    */
   public void setTagAFI(String tagID, int afi) throws RFIDReaderException, CommConnectionException {
-    String sendData = String.format("WRQ 2227%s%02X crc", tagID, afi);
+    String tagCommand = String.format("2227%s%02X", tagID, afi);
     try {
-      sendRequest(sendData);
+      sendWritingRequest(tagCommand);
     } catch (RFIDReaderException e) {
       throw new RFIDReaderException("setTagAFI: " + e.getMessage());
     }
@@ -946,9 +1033,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    *         </ul>
    */
   public void lockTagAFI(String tagID) throws RFIDReaderException, CommConnectionException {
-    String sendData = String.format("WRQ 2228%s crc", tagID);
+    String tagCommand = String.format("2228%s", tagID);
     try {
-      sendRequest(sendData);
+      sendWritingRequest(tagCommand);
     } catch (RFIDReaderException e) {
       throw new RFIDReaderException("lockTagAFI: " + e.getMessage());
     }
@@ -976,9 +1063,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    *         </ul>
    */
   public void setTagDSFID(String tagID, int dsfid) throws RFIDReaderException, CommConnectionException {
-    String senddata = String.format("WRQ 2229%s%02X crc", tagID, dsfid);
+    String tagCommand = String.format("2229%s%02X", tagID, dsfid);
     try {
-      sendRequest(senddata);
+      sendWritingRequest(tagCommand);
     } catch (RFIDReaderException e) {
       throw new RFIDReaderException("setTagDSFID: " + e.getMessage());
     }
@@ -1005,9 +1092,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    *         </ul>
    */
   public void lockTagDSFID(String tagID) throws RFIDReaderException, CommConnectionException {
-    String senddata = String.format("WRQ 222A%s crc", tagID);
+    String tagCommand = String.format("WRQ 222A%s crc", tagID);
     try {
-      sendRequest(senddata);
+      sendWritingRequest(tagCommand);
     } catch (RFIDReaderException e) {
       throw new RFIDReaderException("lockTagDSFID: " + e.getMessage());
     }

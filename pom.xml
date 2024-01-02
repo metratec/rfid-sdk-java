@@ -8,7 +8,7 @@
 	<artifactId>metratec-rfid-reader-library</artifactId>
 	<packaging>jar</packaging>
 
-	<version>4.0</version>
+	<version>4.1</version>
 	<name>metraTec RFID Reader Library</name>
 	<description>metratec reader library</description>
 	<licenses>
