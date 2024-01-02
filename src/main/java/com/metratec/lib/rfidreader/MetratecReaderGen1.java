@@ -17,6 +17,7 @@ import com.metratec.lib.tag.RfidTag;
 /**
  * 
  * @author Matthias Neumann (neumann@metratec.com)
+ * @param <T> rfid tag instance
  * 
  */
 public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecReader<T> {
@@ -869,7 +870,7 @@ public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecRead
     byte[] dataTmp = data.getBytes(Charset.defaultCharset());
 
     crc16 = 0xffff;
-    int polynom = 0x8408;
+    int polynomial = 0x8408;
 
     for (Byte_Counter = 0; Byte_Counter < dataTmp.length; Byte_Counter++) {
       crc16 ^= dataTmp[Byte_Counter] & 0x00FF;
@@ -877,7 +878,7 @@ public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecRead
         if (0 == (crc16 & 1))
           crc16 >>= 1;
         else
-          crc16 = (crc16 >> 1) ^ polynom;
+          crc16 = (crc16 >> 1) ^ polynomial;
       }
     }
     return String.format("%04X", crc16);

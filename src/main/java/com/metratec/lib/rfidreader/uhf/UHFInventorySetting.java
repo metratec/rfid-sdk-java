@@ -1,19 +1,25 @@
 package com.metratec.lib.rfidreader.uhf;
 
+/**
+ * Uhf inventory settings
+ */
 public class UHFInventorySetting {
   private boolean onlyNewTag;
   private boolean withRssi;
   private boolean withTid;
+  private boolean fastStart;
 
   /**
    * @param onlyNewTag only new tags flag
    * @param withRssi with rssi flag
    * @param withTid with tid flag
+   * @param fastStart the fast start flag
    */
-  public UHFInventorySetting(boolean onlyNewTag, boolean withRssi, boolean withTid) {
+  public UHFInventorySetting(boolean onlyNewTag, boolean withRssi, boolean withTid, boolean fastStart) {
     this.onlyNewTag = onlyNewTag;
     this.withRssi = withRssi;
     this.withTid = withTid;
+    this.fastStart = fastStart;
   }
 
   /**
@@ -58,5 +64,18 @@ public class UHFInventorySetting {
     this.withTid = withTid;
   }
 
+  /**
+   * @return true if the fast start is enabled
+   */
+  public boolean isFastStart() {
+    return fastStart;
+  }
+
+  /**
+   * @param fastStart set to true to enable the fast start
+   */
+  public void setFastStart(boolean fastStart) {
+    this.fastStart = fastStart;
+  }
 
 }

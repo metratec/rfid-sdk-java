@@ -941,6 +941,7 @@ public class UHFReader extends MetratecReaderGen1<UhfTag> {
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
    *         range, ..)
    */
+  @Override
   public void setPower(int power) throws CommConnectionException, RFIDReaderException {
     setProfileParameter(PROFILE_PARAMETER.TransmitterPower, power);
   }

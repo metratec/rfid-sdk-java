@@ -346,7 +346,6 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    * 
    * @param tagCommand the command defined in the ISO 15693-3. For example '022100A000B000' to write 'A000B000' to the
    *        block 0 of a tag
-   * @return the read data
    * @throws RFIDReaderException possible RFIDErrorCodes:
    *         <ul>
    *         <li>CCE, CRC communication error</li>
@@ -369,7 +368,6 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    * 
    * @param tagCommand the command defined in the ISO 15693-3. For example '022100A000B000' to write 'A000B000' to the
    *        block 0 of a tag
-   * @return the read data
    * @throws RFIDReaderException possible RFIDErrorCodes:
    *         <ul>
    *         <li>CCE, CRC communication error</li>
@@ -466,7 +464,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    */
   public HfTag getTagData(int blockNumber, String tagID) throws CommConnectionException, RFIDReaderException {
     if (0 > blockNumber || blockNumber > 255) {
-      throw new RFIDReaderException(RFIDErrorCodes.WPA, "wrong Blocknumbers - 0<=blockNumber<256 ");
+      throw new RFIDReaderException(RFIDErrorCodes.WPA, "wrong block numbers - 0<=blockNumber<256 ");
     }
     StringBuffer command = new StringBuffer();
     // prepare command
@@ -584,7 +582,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   }
 
   /**
-   * gets the data which is stored in the tag, get the data from firstblock and the following blocks. Returns the data
+   * gets the data which is stored in the tag, get the data from first block and the following blocks. Returns the data
    * of readable blocks. If "following blocks" is bigger than the available blocks, only the available blocks are
    * returned. If the tag after reading the data is not available (TNR 5 times) the reading data will be return.
    * 
@@ -613,7 +611,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
       throws RFIDReaderException, CommConnectionException {
     if (0 > firstBlock || firstBlock > 255 || (firstBlock + numberOfFollowingBlocks) > 255) {
       throw new RFIDReaderException(RFIDErrorCodes.WPA,
-          "wrong Block number\n0<=fistblock<256  (firstBlock+numberOfFollowingBlocks)<256");
+          "wrong Block number\n0<=fistBlock<256  (firstBlock+numberOfFollowingBlocks)<256");
     }
     StringBuffer tagData = new StringBuffer();
     int errorCount = RETRY_COUNT;
@@ -722,13 +720,13 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    */
   public HfTag setTagData(int blockNumber, String data, String tagID, boolean optionFlag)
       throws RFIDReaderException, CommConnectionException {
-    // int blocksize=8; //4byte hex
+    // int block size=8; //4byte hex
     // data must be an multiply of 8
     if (0 != data.length() % 8) {
       throw new RFIDReaderException(RFIDErrorCodes.WPA, "Data Size must be an multiply of 8");
     }
     if (0 > blockNumber || blockNumber > 255) {
-      throw new RFIDReaderException(RFIDErrorCodes.WPA, "wrong Blocknumbers - 0<=blockNumber<256 ");
+      throw new RFIDReaderException(RFIDErrorCodes.WPA, "wrong block numbers - 0<=blockNumber<256 ");
     }
     StringBuffer tagCommand = new StringBuffer();
     // prepare command
@@ -852,9 +850,9 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   public void setMode(MODE mode) throws RFIDReaderException, CommConnectionException {
     if (null == mode)
       throw new RFIDReaderException(RFIDErrorCodes.WPA, "mode is null");
-    String[] recvdata = communicateSynchronized("MOD " + ((MODE.ISO15693 == mode) ? "156" : "14B"));
-    if (!recvdata[0].startsWith("OK!")) {
-      throw new RFIDReaderException(RFIDErrorCodes.NER, recvdata[0]);
+    String[] recvData = communicateSynchronized("MOD " + ((MODE.ISO15693 == mode) ? "156" : "14B"));
+    if (!recvData[0].startsWith("OK!")) {
+      throw new RFIDReaderException(RFIDErrorCodes.NER, recvData[0]);
     } else {
       this.mode = mode;
     }
@@ -961,21 +959,21 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
     int VICCNoB = 0;
     int VICCBS = 0;
     int ICR = 0;
-    byte infoflag = (byte) Integer.parseInt(answer.substring(0, 2), 16);
-    if (1 == (infoflag & 0x01)) {
+    byte infoFlag = (byte) Integer.parseInt(answer.substring(0, 2), 16);
+    if (1 == (infoFlag & 0x01)) {
       isDSFID = true;
       DSFID = Integer.parseInt(answer.substring(18, 20), 16);
     }
-    if (2 == (infoflag & 0x02)) {
+    if (2 == (infoFlag & 0x02)) {
       isAFI = true;
       AFI = Integer.parseInt(answer.substring(20, 22), 16);
     }
-    if (4 == (infoflag & 0x04)) {
+    if (4 == (infoFlag & 0x04)) {
       isVICCMS = true;
       VICCNoB = Integer.parseInt(answer.substring(22, 24), 16) + 1;
       VICCBS = (Integer.parseInt(answer.substring(24, 26), 16) & 0x3f) + 1;
     }
-    if (8 == (infoflag & 0x08)) {
+    if (8 == (infoFlag & 0x08)) {
       isICR = true;
       ICR = Integer.parseInt(answer.substring(26, 28), 16);
     }
@@ -1101,7 +1099,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   }
 
   /**
-   * The reader allows different output power levels to match antenna size, tag size or tag po- sition. The power level
+   * The reader allows different output power levels to match antenna size, tag size or tag position. The power level
    * is given in milliwatt (mW). The minimum value is 500, the maximum is 4000 with steps of 250.
    * 
    * The second generation ISO 15693 devices with hardware revision &gt;= 02.00 (DeskID ISO, UM15, Dwarf15, QR15 and
@@ -1112,21 +1110,22 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
    */
+  @Override
   public void setPower(int value) throws CommConnectionException, RFIDReaderException {
-    String[] recvdata = communicateSynchronized("SET", "PWR", value);
-    if (recvdata[0].equals(RESPONSE_OK))
+    String[] recvData = communicateSynchronized("SET", "PWR", value);
+    if (recvData[0].equals(RESPONSE_OK))
       return;
-    handleUnexpectedResponse(recvdata[0], "Set power " + value);
+    handleUnexpectedResponse(recvData[0], "Set power " + value);
   }
 
   @Override
   public void setAntennaPort(int port) throws CommConnectionException, RFIDReaderException {
-    String[] recvdata = communicateSynchronized("SAP", port);
-    if (recvdata[0].equals(RESPONSE_OK)) {
+    String[] recvData = communicateSynchronized("SAP", port);
+    if (recvData[0].equals(RESPONSE_OK)) {
       setCurrentAntennaPort(port);
       return;
     }
-    handleUnexpectedResponse(recvdata[0], "Set antenna port " + port);
+    handleUnexpectedResponse(recvData[0], "Set antenna port " + port);
   }
 
   /**
@@ -1144,6 +1143,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
    */
+  @Override
   public void setMultiplexAntennas(int numberOfAntennas) throws CommConnectionException, RFIDReaderException {
     enableAntennaReport(0 < numberOfAntennas && numberOfAntennas <= 16);
     String[] response = communicateSynchronized("SAP", "AUT",
@@ -1178,7 +1178,7 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
   /*
    * (non-Javadoc)
    * 
-   * @see com.metratec.lib.rfidreader.StandardReader#handleInventroy(java.lang.String)
+   * @see com.metratec.lib.rfidreader.StandardReader#handleInventory(java.lang.String)
    */
   @Override
   protected void handleInventory(String inventory) {

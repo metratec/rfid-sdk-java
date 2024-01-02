@@ -1,5 +1,8 @@
 package com.metratec.lib.rfidreader.uhf;
 
+/**
+ * Uhf tag size settings
+ */
 public class UHFTagSizeSetting {
   private Integer start;
   private Integer min;

@@ -19,7 +19,7 @@ import com.metratec.lib.tag.UhfTag;
 /**
  * 
  * @author Matthias Neumann (neumann@metratec.com)
- * 
+ * @param <T> rfid tag instance
  */
 public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecReader<T> {
 
@@ -109,10 +109,25 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
     }
   }
 
+  /**
+   * Iterate over the configured multiplex antennas and get all tags back<br>
+   * 
+   * @return List with the founded tags
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
+   */
   public List<T> getInventoryMultiplex() throws RFIDReaderException, CommConnectionException {
     return getInventoryMultiplex(true);
   }
 
+  /**
+   *  Iterate over the configured multiplex antennas and get all tags back<br>
+   * @param throwAntennaErrors if true, the method throw an error if one or more antennas signaling an error
+   * 
+   * @return List with the founded tags
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
+   */
   public List<T> getInventoryMultiplex(boolean throwAntennaErrors) throws RFIDReaderException, CommConnectionException {
     // parse multiple inventory
     // +MINV: <Antenna Error>
@@ -568,7 +583,7 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
   public String getSerialNumber() throws RFIDReaderException, CommConnectionException {
     String revision = getRevision()[2];
     // +SERIAL: 2020090817420000
-    return revision.substring(9, revision.length());
+    return revision.length() > 9 ? revision.substring(9, revision.length()) : "";
   }
 
   @Override
@@ -617,6 +632,7 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
    */
+  @Override
   public void setOutput(int pin, boolean state) throws RFIDReaderException, CommConnectionException {
     if (1 > pin || pin > 4) {
       throw new RFIDReaderException(RFIDErrorCodes.NOR, "Number out of range ([1,4])");
@@ -700,29 +716,6 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
   }
 
   /**
-   * gets a byte array from a hex string
-   * 
-   * @param str hex string
-   * @return byte array
-   * @throws RFIDReaderException possible RFIDErrorCodes:
-   *         <ul>
-   *         <li>WPA, data are not hex data</li>
-   *         <li>WDL, hex data have a wrong lenght</li>
-   *         </ul>
-   */
-  protected byte[] getByteFromHexString(String str) throws RFIDReaderException {
-    if (1 == str.length() % 2)
-      throw new RFIDReaderException(RFIDErrorCodes.WDL, "Wrong hex data Length");
-    if (!str.matches("\\p{XDigit}*"))
-      throw new RFIDReaderException(RFIDErrorCodes.WPA, "No Hex String");
-    byte[] data = new byte[str.length() / 2];
-    for (int i = 0; i < data.length; i++) {
-      data[i] = (byte) Integer.parseInt(str.substring(i * 2, i * 2 + 2), 16);
-    }
-    return data;
-  }
-
-  /**
    * @return the currentAntennaPort
    */
   protected int getCurrentAntennaPort() {
@@ -760,15 +753,41 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
   }
 
   /**
-   * Returns the number of antennas to be switched through (from 1 to ...)
+   * In case you want to automatically switch between multiple antennas (e.g. trying to find all tags in a search area
+   * that can only be searched using multiple antennas) you can set the antenna switch sequence.<br>
+   * 
+   * @param sequence The antenna sequence. E.g. [1,3,2,4]
+   * 
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
+   */
+  public void setMultiplexAntennas(List<Integer> sequence) throws CommConnectionException, RFIDReaderException {
+    communicateSynchronized("AT+MUX", sequence.toArray());
+  }
+
+  /**
+   * Returns the number of antennas to be switched through
    * 
    * @return Number of antennas to be switched through
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
    */
-  public int getMultiplexAntennas() throws CommConnectionException, RFIDReaderException {
-    // +MUX: 1
-    return Integer.parseInt(communicateSynchronized("AT+MUX?").substring(6));
+  public List<Integer> getMultiplexAntennas() throws CommConnectionException, RFIDReaderException {
+    // +MUX: 2
+    // +MUX: 1,3,2,4
+    String[] split = splitLine(communicateSynchronized("AT+MUX?").substring(6));
+    List<Integer> sequence = new ArrayList<>();
+    if (split.length == 1) {
+      int antennas = Integer.parseInt(split[0]);
+      for (int i = 1; i <= antennas; i++) {
+        sequence.add(i);
+      }
+    } else {
+      for (String entry : split) {
+        sequence.add(Integer.parseInt(entry));
+      }
+    }
+    return sequence;
   }
 
   @Override

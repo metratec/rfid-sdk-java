@@ -28,6 +28,7 @@ import com.metratec.lib.tag.RfidTag;
 
 /**
  * @author jannis becke, matthias neumann
+ * @param <T> the rfid tag instance
  *
  */
 public abstract class MetratecReader<T extends RfidTag> {
@@ -209,12 +210,12 @@ public abstract class MetratecReader<T extends RfidTag> {
    * 
    * @return the reader answer as a string array
    * @throws CommConnectionException if an communication exception occurs
-   * @throws RFIDReaderException throw {@link RFIDErrorCodes#SRT} if the reader has been reseted
+   * @throws RFIDReaderException throw {@link RFIDErrorCodes#SRT} if the reader has been reset
    */
   protected String receiveData() throws CommConnectionException, RFIDReaderException {
-    long endtime = System.currentTimeMillis() + receiveTimeout;
+    long endTime = System.currentTimeMillis() + receiveTimeout;
     while (responseBuffer.isEmpty()) {
-      if (System.currentTimeMillis() > endtime) {
+      if (System.currentTimeMillis() > endTime) {
         // checkHardReset();
         throw new CommConnectionException(ICommConnection.RECV_TIMEOUT, "Reader did not respond");
       }
@@ -686,7 +687,7 @@ public abstract class MetratecReader<T extends RfidTag> {
    * @throws RFIDReaderException possible RFIDErrorCodes:
    *         <ul>
    *         <li>WPA, data are not hex data</li>
-   *         <li>WDL, hex data have a wrong lenght</li>
+   *         <li>WDL, hex data have a wrong length</li>
    *         </ul>
    */
   protected byte[] getByteFromHexString(String str) throws RFIDReaderException {
@@ -799,7 +800,7 @@ public abstract class MetratecReader<T extends RfidTag> {
   public abstract void setMultiplexAntennas(int numberOfAntennas) throws CommConnectionException, RFIDReaderException;
 
   /**
-   * Looks for all tags in range of the reader and get all tags as a number of strings back<br>
+   * Looks for all tags in range of the reader and get all tags back<br>
    * 
    * @return List with the founded tags
    * @throws CommConnectionException if an communication exception occurs

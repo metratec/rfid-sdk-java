@@ -10,6 +10,7 @@ import com.metratec.lib.connection.ICommConnection;
 import com.metratec.lib.connection.Rs232Connection;
 import com.metratec.lib.connection.TcpConnection;
 import com.metratec.lib.connection.UsbConnection;
+import com.metratec.lib.rfidreader.HighOnTagSettings;
 import com.metratec.lib.rfidreader.RFIDErrorCodes;
 import com.metratec.lib.rfidreader.RFIDReaderException;
 
@@ -120,6 +121,7 @@ public class PulsarLR extends UHFReaderGen2 {
 
   /**
    * Gets the current antenna power
+   * 
    * @param antenna the antenna
    * @return the current antenna power
    * @throws CommConnectionException if an communication error occurs
@@ -226,48 +228,36 @@ public class PulsarLR extends UHFReaderGen2 {
     getCurrentAntennaPowers();
   }
 
-  @Override
-  public int getMultiplexAntennas() throws CommConnectionException, RFIDReaderException {
-    // +MUX: 1
-    String response = communicateSynchronized("AT+MUX?");
-    String[] responses = splitLine(response.substring(6));
-    if (responses.length > 1) {
-      throw new RFIDReaderException(RFIDErrorCodes.WPA,
-          "A multiplex sequence is activated, please use 'getMultiplexAntennasSequence' command");
+  /**
+   * Enable the "high on tag" feature which triggers the selected output to go to the "high" state, when a tag is found.
+   * This allows to trigger an external device whenever a tag is in the field. This corresponds to the blue LED.
+   * 
+   * @param settings the high on tag setting
+   * @throws CommConnectionException if an communication error occurs
+   * @throws RFIDReaderException if an reader error occurs
+   */
+  public void setHighOnTag(HighOnTagSettings settings) throws CommConnectionException, RFIDReaderException {
+    if (settings.isEnable()) {
+      communicateSynchronized("AT+HOT", settings.getOutputPin(), settings.getDuration());
+    } else {
+      communicateSynchronized("AT+HOT", "0");
     }
-    return Integer.parseInt(responses[0]);
   }
 
   /**
-   * Gets the multiplex antenna sequence
-   * 
-   * @return List with the antenna sequence
-   * @throws CommConnectionException
-   * @throws RFIDReaderException
+   * Gets the current high on tag feature setting
+   *
+   * @return the current high on tag setting 
+   * @throws CommConnectionException if an communication error occurs
+   * @throws RFIDReaderException if an reader error occurs
    */
-  public List<Integer> getMultiplexAntennaSequence() throws CommConnectionException, RFIDReaderException {
-    String response = communicateSynchronized("AT+MUX?");
-    // +MUX: 1,2,3,....
-    String[] values = splitLine(response.substring(6));
-    if (values.length == 1) {
-      throw new RFIDReaderException(RFIDErrorCodes.WPA,
-          "No multiplex sequence activated, please use 'getMultiplexAntennas' command");
+  public HighOnTagSettings getHighOnTag() throws CommConnectionException, RFIDReaderException {
+    String[] split = splitLine(communicateSynchronized("AT+HOT?").substring("+HOT: ".length()));
+    if (split[0].contains("OFF")) {
+      return new HighOnTagSettings(false);
+    } else {
+      return new HighOnTagSettings(Integer.parseInt(split[0]), Integer.parseInt(split[1]));
     }
-    List<Integer> sequence = new ArrayList<>();
-    for (String value : values) {
-      sequence.add(Integer.parseInt(value));
-    }
-    return sequence;
-  }
 
-  /**
-   * Sets the multiplex antenna sequence
-   * 
-   * @param sequence the antenna sequence
-   * @throws CommConnectionException
-   * @throws RFIDReaderException
-   */
-  public void setMultiplexAntennaSequence(List<Integer> sequence) throws CommConnectionException, RFIDReaderException {
-    communicateSynchronized("AT+MUX", sequence.toArray());
   }
 }

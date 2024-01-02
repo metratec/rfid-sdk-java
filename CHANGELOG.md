@@ -2,11 +2,17 @@
 
 Java library for controlling the metratec rfid readers
 
-## Version 4.0
+## Version 4.1
+
+### 4.1.1
+
+* use connection library without the javax.xml.bind dependency
 
 ### 4.1
 
 * HF/ISO Reader: Request commands added to send manufacturer specific commands to the transponders
+
+## Version 4.0
 
 ### 4.0
 

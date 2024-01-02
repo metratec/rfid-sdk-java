@@ -13,4 +13,4 @@ The compiled output files will be generated in the `bin` folder by default.
 
 > If you want to customize the folder structure, open `.vscode/settings.json` and update the related settings there.
 
-Please note: The metratec-rfid-reader-library-r4.1-jar-with-dependencies.jar file is referenced from the parent folder of the example.
+Please note: The metratec-rfid-reader-library-r4.1.1-jar-with-dependencies.jar file is referenced from the parent folder of the example.

@@ -9,6 +9,9 @@ import com.metratec.lib.rfidreader.RFIDErrorCodes;
 import com.metratec.lib.rfidreader.RFIDReaderException;
 import com.metratec.lib.tag.UhfTag;
 
+/**
+ * Uhf reader gen2 class
+ */
 public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
 
   private UHFInventorySetting inventorySetting = null;
@@ -17,7 +20,14 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
    * the available uhf regions
    */
   public enum REGION {
-    ETSI, ETSI_HIGH, FCC
+    /** ETSI */
+    ETSI,
+    /** ETSI */
+    ETSI_HIGH,
+    /** FCC */
+    FCC,
+    /** CHINA */
+    CHINA,
   }
 
   /** Enum for the UHF Tag membank */
@@ -35,6 +45,12 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
     PC,
   }
 
+  /**
+   * Create a new instance
+   * 
+   * @param identifier the reader identifier
+   * @param connection the connection
+   */
   public UHFReaderGen2(String identifier, ICommConnection connection) {
     super(identifier, connection);
   }
@@ -173,7 +189,7 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
 
   /**
    * 
-   * @return the current ufh inventory settings {@link} {@link UHFInventorySetting}}
+   * @return the current ufh inventory settings {@link UHFInventorySetting}}
    * @throws CommConnectionException if an communication error occurs
    * @throws RFIDReaderException if an reader error occurs
    */
@@ -181,13 +197,15 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
     if (null != inventorySetting) {
       return inventorySetting;
     }
-    String data = communicateSynchronized("AT+INVS?");
-    // +INVS: 0,0,0
+    String response = communicateSynchronized("AT+INVS?");
+    String[] data = splitLine(response);
+    // +INVS: 0,0,0,0
     try {
-      inventorySetting = new UHFInventorySetting(data.charAt(7) == '1', data.charAt(9) == '1', data.charAt(11) == '1');
+      inventorySetting = new UHFInventorySetting(data[0].equals("1"), data[1].equals("1"), data[2].equals("1"),
+          data.length > 3 && data[3].equals("1"));
       return inventorySetting;
     } catch (IndexOutOfBoundsException e) {
-      throw new RFIDReaderException(RFIDErrorCodes.NER, data);
+      throw new RFIDReaderException(RFIDErrorCodes.NER, response);
     }
   }
 
@@ -200,7 +218,7 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
    */
   public void setInventorySettings(UHFInventorySetting settings) throws CommConnectionException, RFIDReaderException {
     communicateSynchronized("AT+INVS", settings.onlyNewTag() ? "1" : "0", settings.withRssi() ? "1" : "0",
-        settings.withTid() ? "1" : "0");
+        settings.withTid() ? "1" : "0", settings.isFastStart() ? "1" : "0");
     this.inventorySetting = settings;
   }
 
@@ -252,7 +270,7 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
 
   /**
    * 
-   * @return the current tag size settings {@link} {@link UHFTagSizeSetting}}
+   * @return the current tag size settings {@link UHFTagSizeSetting}}
    * @throws CommConnectionException if an communication error occurs
    * @throws RFIDReaderException if an reader error occurs
    */
@@ -915,5 +933,106 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
   public String executeCommand(String command, Object... parameters)
       throws CommConnectionException, RFIDReaderException {
     return communicateSynchronized(command, parameters);
+  }
+
+  /**
+   * This command tags to an Impinj M775 tag using the proprietary authentication command. It sends a random challenge
+   * to the transponder and gets the authentication payload in return. You can use this to check the authenticity of the
+   * transponder with Impinj Authentication Service. For further details, please contact Impinj directly.
+   * 
+   * @return the transponder responses
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public List<UhfTagAuth> callImpinjAuthenticationService() throws CommConnectionException, RFIDReaderException {
+    String[] responses = splitResponse(communicateSynchronized("AT+IAS"));
+    List<UhfTagAuth> tags = new ArrayList<>();
+    for (String response : responses) {
+      String[] data = splitLine(response);
+      if (data[1].contains("OK")) {
+        tags.add(new UhfTagAuth(data[0], data[2], data[3], data[4]));
+      } else {
+        tags.add(new UhfTagAuth(data[0], data[1]));
+      }
+    }
+    return tags;
+  }
+
+  /**
+   * Manually select the session according to the EPC Gen 2 Protocol to use during inventory scan. Default value is
+   * "auto" and in most cases this should stay auto. Only change this if you absolutely know what you are doing and if
+   * you can control the types of tags you scan. Otherwise, unexpected results during inventory scans with "only new
+   * tags" active might happen.
+   * 
+   * @param sessionId session to set ["0", "1", "2", "3", "AUTO"]
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public void setSession(String sessionId) throws CommConnectionException, RFIDReaderException {
+    communicateSynchronized("AT+SES", sessionId);
+  }
+
+  /**
+   * Returns the current selected session. See SetSession for more details.
+   * 
+   * @return the current selected session
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public String getSession() throws CommConnectionException, RFIDReaderException {
+    String response = communicateSynchronized("AT+SES?");
+    return response.substring(6);
+  }
+
+  /**
+   * Configure the internal RF communication settings between tag and reader. Each mode ID corresponds to a set of RF
+   * parameters that fit together. Not all devices support all modes and not all modes can be access in all regions. See
+   * reader description for more detail.
+   * 
+   * @param modeId mode id
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public void setRfMode(String modeId) throws CommConnectionException, RFIDReaderException {
+    communicateSynchronized("AT+RFM", modeId);
+  }
+
+  /**
+   * Returns the current rf mode. See SetRfMode for more details.
+   * 
+   * @return the current selected session
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public String getRfMode() throws CommConnectionException, RFIDReaderException {
+    String response = communicateSynchronized("AT+RFM?");
+    return response.substring(6);
+  }
+
+  /**
+   * The RFID tag IC manufacturer Impinj has added two custom features to its tag ICs that are not compatible with tag
+   * ICs from other manufacturers. Activate these features with this command. But make sure that you only use tags with
+   * Impinj ICs like Monza6 or M7xx or M8xx series. Tags from other manufacturers will most likely not answer at all
+   * when those options are active!
+   * 
+   * @param settings the custom impinj settings
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public void setCustomImpinjSettings(CustomImpinjSettings settings)
+      throws CommConnectionException, RFIDReaderException {
+    communicateSynchronized("AT+ICS", settings.isFastId() ? 1 : 0, settings.isTagFocus() ? 1 : 0);
+  }
+
+  /**
+   * Returns the current custom impinj settings
+   * 
+   * @return the current custom impinj settings
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public CustomImpinjSettings getCustomImpinjSettings() throws CommConnectionException, RFIDReaderException {
+    String[] data = splitLine(communicateSynchronized("AT+ICS?").substring(6));
+    return new CustomImpinjSettings(data[0].equals("1"), data[1].equals("1"));
   }
 }
