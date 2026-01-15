@@ -20,7 +20,7 @@ import com.metratec.lib.connection.UsbConnection;
  * @author mn
  *
  */
-public class QuasarMF extends MFReader {
+public class QuasarMF extends MFReaderAscii {
   /**
    * Minimal reader revison
    */

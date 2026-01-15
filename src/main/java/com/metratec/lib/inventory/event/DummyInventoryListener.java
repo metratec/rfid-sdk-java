@@ -7,6 +7,11 @@ package com.metratec.lib.inventory.event;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * A dummy implementation of InventoryListener that provides empty implementations
+ * for all inventory events. This class can be used as a base class when you only
+ * need to handle specific inventory events rather than implementing all methods.
+ * 
+ * @param <T> the type of RFID tag handled by this listener
  * @author mn
  *
  */

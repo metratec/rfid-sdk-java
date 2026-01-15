@@ -136,6 +136,10 @@ public class Inventory<T extends RfidTag> {
     }
   }
 
+  /**
+   * Add a transponder to the inventory
+   * @param tag the transponder to add
+   */
   public void addTag(T tag) {
     inventoryLock.lock();
     try {
@@ -153,6 +157,7 @@ public class Inventory<T extends RfidTag> {
   /**
    * check the current inventory
    */
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   private void checkingInventory() {
     isRunning = true;
     long nextCheckTime;
@@ -224,6 +229,10 @@ public class Inventory<T extends RfidTag> {
     }
   }
 
+  /**
+   * Remove a transponder from the inventory
+   * @param tag the transponder to remove
+   */
   public void removeTag(T tag) {
     inventoryLock.lock();
     try {
@@ -295,6 +304,7 @@ public class Inventory<T extends RfidTag> {
   /**
    * stop automatically checking tags
    */
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   public void stop() {
     isRunning = false;
     while (isAlive()) {
@@ -368,7 +378,6 @@ public class Inventory<T extends RfidTag> {
     changeListener = listener;
     if (null == changeListener) {
       changeListener = new DummyInventoryListener<>();
-      return;
     }
   }
 

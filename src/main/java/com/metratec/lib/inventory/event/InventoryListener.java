@@ -10,7 +10,7 @@ import com.metratec.lib.tag.RfidTag;
  * The listener interface for receiving tag events
  * 
  * @author man
- *
+ * @param <T> the type of RFID tag handled by this listener
  */
 public interface InventoryListener<T extends RfidTag> {
 

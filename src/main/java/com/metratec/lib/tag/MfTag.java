@@ -5,6 +5,11 @@
 package com.metratec.lib.tag;
 
 /**
+ * Represents a Mifare RFID tag.
+ * Mifare tags are a popular type of contactless smart card that operate at
+ * 13.56 MHz and provide secure data storage and authentication capabilities.
+ * They include Tag Identifier (TID) for unique identification.
+ * 
  * @author mn
  *
  */

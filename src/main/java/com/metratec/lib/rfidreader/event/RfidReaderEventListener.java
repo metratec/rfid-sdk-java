@@ -5,6 +5,10 @@
 package com.metratec.lib.rfidreader.event;
 
 /**
+ * Event listener interface for RFID reader events.
+ * This interface defines methods for handling reader-specific events such as
+ * connection state changes and input pin changes.
+ * 
  * @author jannis becke
  *
  */

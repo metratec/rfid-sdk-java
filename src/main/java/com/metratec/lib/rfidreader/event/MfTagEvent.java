@@ -7,6 +7,10 @@ import com.metratec.lib.tag.MfTag;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * Event representing a Mifare RFID tag occurrence.
+ * This event is fired when Mifare tags are detected, lost, or undergo
+ * other state changes in Mifare-compatible RFID readers.
+ * 
  * @author mn
  *
  */

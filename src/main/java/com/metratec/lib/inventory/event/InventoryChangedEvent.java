@@ -10,9 +10,13 @@ import com.metratec.lib.rfidreader.event.RfidEvent;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * Event fired when the RFID inventory has changed.
+ * 
+ * This event contains information about tags that have arrived, departed,
+ * or changed state in the current inventory.
+ * 
  * @author man
  * @param <T> {@link RfidTag} instance
- *
  */
 public class InventoryChangedEvent<T extends RfidTag> extends RfidEvent {
   private static final long serialVersionUID = -4242588366673410007L;

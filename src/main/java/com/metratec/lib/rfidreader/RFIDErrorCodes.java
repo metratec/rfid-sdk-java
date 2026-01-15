@@ -35,6 +35,8 @@ public class RFIDErrorCodes {
   public static final int BSY = 0x0000000B;
   /** Tag Listener missing */
   public static final int TLM = 0x0000000C;
+  /** Wrong Reader Mode */
+  public static final int WRM = 0x0000000D;
 
 
   // HF

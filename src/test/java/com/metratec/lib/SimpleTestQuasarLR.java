@@ -11,8 +11,8 @@ import com.metratec.lib.inventory.SimpleInventory;
 import com.metratec.lib.rfidreader.event.RfidReaderConnectionState;
 import com.metratec.lib.rfidreader.event.RfidReaderEventListener;
 import com.metratec.lib.rfidreader.event.RfidReaderInputChange;
-import com.metratec.lib.rfidreader.iso.ISOReader.MODE;
-import com.metratec.lib.rfidreader.iso.ISOReader.SRI;
+import com.metratec.lib.rfidreader.iso.ISOReaderAscii.MODE;
+import com.metratec.lib.rfidreader.iso.ISOReaderAscii.SRI;
 import com.metratec.lib.rfidreader.iso.QuasarLR;
 import com.metratec.lib.tag.HfTag;
 

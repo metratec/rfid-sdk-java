@@ -2,6 +2,22 @@
 
 Java library for controlling the metratec rfid readers
 
+## Version 4.2
+
+### 4.2
+
+* NFC reader support added
+* DeskID UHF v2 reader added
+* High on tag functionality added to the PulsarLR
+* Examples project updated and reorganized
+* Description updated
+* getInventory now returns current inventory during continuous scan
+* Antenna parsing updated
+* Fixed multiple antenna bug for UHF readers
+* Checks connection also if heartbeat not available
+* Continuous inventory doesn't clear current inventory before start
+* Use connection library 1.23.2
+
 ## Version 4.1
 
 ### 4.1.3

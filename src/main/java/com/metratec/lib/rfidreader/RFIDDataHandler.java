@@ -11,7 +11,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import com.metratec.lib.connection.CommConnectionException;
 import com.metratec.lib.connection.ICommConnection;
 import com.metratec.lib.rfidreader.event.EventHandler;
@@ -76,7 +75,7 @@ class RFIDDataHandler {
    */
   protected RFIDDataHandler(String identifier, ICommConnection connection,
       ReceiveListener receiveListener, MetratecReader<?> device) throws CommConnectionException {
-    logger = LoggerFactory.getLogger(device.getClass());
+    logger = device.getLogger();
     if (null == connection) {
       throw new CommConnectionException(ICommConnection.NOT_INITIALISED, "The connection is NULL!");
     }
@@ -109,6 +108,7 @@ class RFIDDataHandler {
     }
   }
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   private void work() {
     if (logger.isDebugEnabled()) {
       logger.debug(identifier + " started");
@@ -195,6 +195,7 @@ class RFIDDataHandler {
                 }
               };
               recvBuf.setLength(0);
+              thread.setName("DH-"+identifier+"-Connecting");
               thread.start();
               handlerState = MetratecReader.STATE_CONFIGURING;
               if (logger.isDebugEnabled()) {
@@ -414,7 +415,7 @@ class RFIDDataHandler {
       isRunning = false;
       // internalThread.interrupt();
       if (logger.isDebugEnabled()) {
-        logger.debug(identifier + " StandardReader.STATE_STOPPED");
+        logger.debug(identifier + " stopping...");
       }
       while (isAlive()) {
         try {
@@ -504,6 +505,9 @@ class RFIDDataHandler {
           work();
         }
       }, "DH-" + identifier);
+      if (logger.isDebugEnabled()) {
+        logger.debug(identifier + " starting...");
+      }
       internalThread.start();
     }
 

@@ -23,7 +23,7 @@ import com.metratec.lib.rfidreader.RFIDReaderException;
  * @author mn
  *
  */
-public class PulsarLR extends UHFReaderGen2 {
+public class PulsarLR extends UHFReaderAT {
   /**
    * Minimal reader revison
    */
@@ -84,6 +84,7 @@ public class PulsarLR extends UHFReaderGen2 {
     String message = super.prepareDevice();
     getCurrentAntennaPowers();
     getCurrentConnectedMultiplexer();
+    enableInputEvents(true);
     return message;
   }
 

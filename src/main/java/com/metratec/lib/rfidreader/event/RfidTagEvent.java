@@ -6,6 +6,11 @@ package com.metratec.lib.rfidreader.event;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * Event representing a tag-related occurrence in an RFID reader.
+ * This is a base class for all tag events and carries information about
+ * the specific tag involved in the event.
+ * 
+ * @param <T> the type of RFID tag associated with this event
  * @author jannis becke
  *
  */

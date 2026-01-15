@@ -4,6 +4,10 @@
 package com.metratec.lib.rfidreader.event;
 
 /**
+ * Event representing a change in the input state of an RFID reader.
+ * This event is fired when the reader's digital input pins change state,
+ * providing information about which pin changed and its new state.
+ * 
  * @author jannis becke
  *
  */

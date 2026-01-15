@@ -21,7 +21,7 @@ import com.metratec.lib.rfidreader.ReaderType;
  * @author mn
  *
  */
-public class PulsarMX extends UHFReader {
+public class PulsarMX extends UHFReaderAscii {
   /**
    * Minimal reader revision
    */
@@ -43,7 +43,7 @@ public class PulsarMX extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param connection the communication interface (instance of {@link ICommConnection})
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public PulsarMX(String identifier, ICommConnection connection, READER_MODE mode) {
     super(identifier, connection, mode, MIN_READER_REVISION);
@@ -92,7 +92,7 @@ public class PulsarMX extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param usbDeviceSerialNumber serial number of the usb reader
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public PulsarMX(String identifier, String usbDeviceSerialNumber, READER_MODE mode) {
     super(identifier, new UsbConnection(usbDeviceSerialNumber, 115200), mode, MIN_READER_REVISION);
@@ -104,7 +104,7 @@ public class PulsarMX extends UHFReader {
    * @param identifier reader identifier
    * @param ipAddress ip address of the ethernet reader
    * @param port port of the ethernet reader
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public PulsarMX(String identifier, String ipAddress, int port, READER_MODE mode) {
     super(identifier, new TcpConnection(ipAddress, port), mode, MIN_READER_REVISION);
@@ -120,7 +120,7 @@ public class PulsarMX extends UHFReader {
    * @param stopBit rs232 stopbit
    * @param parity rs232 parity
    * @param flowControl rs232 flowcontrol
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public PulsarMX(String identifier, String portName, int baudrate, int dataBit, int stopBit, int parity,
       int flowControl, READER_MODE mode) {

@@ -14,7 +14,7 @@ import com.metratec.lib.connection.TcpConnection;
  * @author mn
  *
  */
-public class DMI15 extends ISOReader {
+public class DMI15 extends ISOReaderAscii {
 
   /**
    * Minimal reader revison

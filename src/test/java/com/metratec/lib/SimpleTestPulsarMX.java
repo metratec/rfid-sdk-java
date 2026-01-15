@@ -10,7 +10,7 @@ import com.metratec.lib.rfidreader.event.RfidReaderConnectionState;
 import com.metratec.lib.rfidreader.event.RfidReaderEventListener;
 import com.metratec.lib.rfidreader.event.RfidReaderInputChange;
 import com.metratec.lib.rfidreader.uhf.PulsarMX;
-import com.metratec.lib.rfidreader.uhf.UHFReader;
+import com.metratec.lib.rfidreader.uhf.UHFReaderAscii;
 import com.metratec.lib.tag.UhfTag;
 
 /**
@@ -21,7 +21,7 @@ public class SimpleTestPulsarMX implements RfidReaderEventListener {
   private PulsarMX reader;
 
   public SimpleTestPulsarMX() {
-    reader = new PulsarMX("P204", "192.168.2.221", 10001, UHFReader.READER_MODE.ETS);
+    reader = new PulsarMX("P204", "192.168.2.221", 10001, UHFReaderAscii.READER_MODE.ETS);
     reader.setReaderEventListener(new RfidReaderEventListener() {
 
       @Override

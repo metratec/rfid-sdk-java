@@ -16,7 +16,7 @@ import com.metratec.lib.connection.UsbConnection;
  * @author mn
  *
  */
-public class DeskID_MF extends MFReader {
+public class DeskID_MF extends MFReaderAscii {
   /**
    * Minimal reader revison
    */

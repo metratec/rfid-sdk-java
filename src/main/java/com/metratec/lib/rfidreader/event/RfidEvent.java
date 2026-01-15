@@ -7,8 +7,12 @@ package com.metratec.lib.rfidreader.event;
 import java.io.Serializable;
 
 /**
+ * Base class for RFID reader events.
+ * 
+ * This class provides the foundation for all RFID-related events including
+ * reader connection events, tag detection events, and inventory events.
+ * 
  * @author jannis becke
- *
  */
 public class RfidEvent implements Serializable {
   /**

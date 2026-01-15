@@ -186,4 +186,19 @@ public class UHFInventorySetting {
         && this.fastStart == other.fastStart && this.phase == other.phase && this.select.equals(other.select)
         && this.target.equals(other.target) && this.rssiThreshold.equals(this.rssiThreshold);
   }
+
+  @Override
+  public int hashCode() {
+    int result = 1;
+    result = 31 * result + (onlyNewTag ? 1 : 0);
+    result = 31 * result + (withRssi ? 1 : 0);
+    result = 31 * result + (withTid ? 1 : 0);
+    result = 31 * result + (fastStart ? 1 : 0);
+    result = 31 * result + (phase ? 1 : 0);
+    result = 31 * result + (select != null ? select.hashCode() : 0);
+    result = 31 * result + (target != null ? target.hashCode() : 0);
+    result = 31 * result + (rssiThreshold != null ? rssiThreshold.hashCode() : 0);
+    return result;
+  }
+
 }

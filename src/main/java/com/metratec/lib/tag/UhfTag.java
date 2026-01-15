@@ -5,6 +5,11 @@
 package com.metratec.lib.tag;
 
 /**
+ * Represents an Ultra High Frequency (UHF) RFID tag.
+ * UHF tags typically operate in the 860-960 MHz frequency range and support
+ * Electronic Product Code (EPC) identification along with Tag Identifier (TID)
+ * and user data storage.
+ * 
  * @author mn
  *
  */

@@ -16,7 +16,7 @@ import com.metratec.lib.connection.UsbConnection;
  * @author mn
  *
  */
-public class QR14 extends MFReader {
+public class QR14 extends MFReaderAscii {
   /**
    * Minimal reader revison
    */

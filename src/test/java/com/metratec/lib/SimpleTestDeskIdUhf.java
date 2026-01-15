@@ -10,8 +10,8 @@ import com.metratec.lib.rfidreader.event.RfidReaderConnectionState;
 import com.metratec.lib.rfidreader.event.RfidReaderEventListener;
 import com.metratec.lib.rfidreader.event.RfidReaderInputChange;
 import com.metratec.lib.rfidreader.uhf.DeskID_UHF;
-import com.metratec.lib.rfidreader.uhf.UHFReader.MEMBANK;
-import com.metratec.lib.rfidreader.uhf.UHFReader.READER_MODE;
+import com.metratec.lib.rfidreader.uhf.UHFReaderAscii.MEMBANK;
+import com.metratec.lib.rfidreader.uhf.UHFReaderAscii.READER_MODE;
 import com.metratec.lib.tag.UhfTag;
 
 /**

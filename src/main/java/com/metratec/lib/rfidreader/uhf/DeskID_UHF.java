@@ -22,7 +22,7 @@ import com.metratec.lib.rfidreader.RFIDReaderException;
  * @author mn
  *
  */
-public class DeskID_UHF extends UHFReader {
+public class DeskID_UHF extends UHFReaderAscii {
   /**
    * Minimal reader revison
    */
@@ -43,9 +43,9 @@ public class DeskID_UHF extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param connection the communication interface (instance of {@link ICommConnection})
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
-  public DeskID_UHF(String identifier, ICommConnection connection, UHFReader.READER_MODE mode) {
+  public DeskID_UHF(String identifier, ICommConnection connection, UHFReaderAscii.READER_MODE mode) {
     super(identifier, connection, mode, MIN_READER_REVISION);
   }
 
@@ -81,9 +81,9 @@ public class DeskID_UHF extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param usbDeviceSerialNumber serial number of the usb reader
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
-  public DeskID_UHF(String identifier, String usbDeviceSerialNumber, UHFReader.READER_MODE mode) {
+  public DeskID_UHF(String identifier, String usbDeviceSerialNumber, UHFReaderAscii.READER_MODE mode) {
     super(identifier, new UsbConnection(usbDeviceSerialNumber, 115200), mode, MIN_READER_REVISION);
   }
 
@@ -97,10 +97,10 @@ public class DeskID_UHF extends UHFReader {
    * @param stopBit rs232 stopbit
    * @param parity rs232 parity
    * @param flowControl rs232 flowcontrol
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public DeskID_UHF(String identifier, String portName, int baudrate, int dataBit, int stopBit, int parity,
-      int flowControl, UHFReader.READER_MODE mode) {
+      int flowControl, UHFReaderAscii.READER_MODE mode) {
     super(identifier, new Rs232Connection(portName, baudrate, dataBit, stopBit, parity, flowControl), mode,
         MIN_READER_REVISION);
   }

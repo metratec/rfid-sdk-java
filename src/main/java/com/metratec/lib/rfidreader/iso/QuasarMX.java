@@ -21,7 +21,7 @@ import com.metratec.lib.rfidreader.RFIDReaderException;
  * @author mn
  *
  */
-public class QuasarMX extends ISOReader {
+public class QuasarMX extends ISOReaderAscii {
 
   /**
    * Minimal reader revision
@@ -47,8 +47,8 @@ public class QuasarMX extends ISOReader {
    * 
    * @param identifier reader identifier
    * @param connection the communication interface (instance of {@link ICommConnection})
-   * @param mode {@link ISOReader.MODE}
-   * @param sri {@link ISOReader.SRI}
+   * @param mode {@link ISOReaderAscii.MODE}
+   * @param sri {@link ISOReaderAscii.SRI}
    */
   public QuasarMX(String identifier, ICommConnection connection, MODE mode, SRI sri) {
     super(identifier, connection, mode, sri, MIN_READER_REVISION, MIN_READER_REVISION_OLD);
@@ -97,8 +97,8 @@ public class QuasarMX extends ISOReader {
    * 
    * @param identifier reader identifier
    * @param usbDeviceSerialNumber serial number of the usb reader
-   * @param mode {@link ISOReader.MODE}
-   * @param sri {@link ISOReader.SRI}
+   * @param mode {@link ISOReaderAscii.MODE}
+   * @param sri {@link ISOReaderAscii.SRI}
    */
   public QuasarMX(String identifier, String usbDeviceSerialNumber, MODE mode, SRI sri) {
     super(identifier, new UsbConnection(usbDeviceSerialNumber, 115200), mode, sri, MIN_READER_REVISION,
@@ -111,8 +111,8 @@ public class QuasarMX extends ISOReader {
    * @param identifier reader identifier
    * @param ipAddress ip address of the ethernet reader
    * @param port port of the ethernet reader
-   * @param mode {@link ISOReader.MODE}
-   * @param sri {@link ISOReader.SRI}
+   * @param mode {@link ISOReaderAscii.MODE}
+   * @param sri {@link ISOReaderAscii.SRI}
    */
   public QuasarMX(String identifier, String ipAddress, int port, MODE mode, SRI sri) {
     super(identifier, new TcpConnection(ipAddress, port), mode, sri, MIN_READER_REVISION, MIN_READER_REVISION_OLD);
@@ -128,8 +128,8 @@ public class QuasarMX extends ISOReader {
    * @param stopBit rs232 stopbit
    * @param parity rs232 parity
    * @param flowControl rs232 flowcontrol
-   * @param mode {@link ISOReader.MODE}
-   * @param sri {@link ISOReader.SRI}
+   * @param mode {@link ISOReaderAscii.MODE}
+   * @param sri {@link ISOReaderAscii.SRI}
    */
   public QuasarMX(String identifier, String portName, int baudrate, int dataBit, int stopBit, int parity,
       int flowControl, MODE mode, SRI sri) {

@@ -10,6 +10,12 @@ import org.slf4j.LoggerFactory;
 import com.metratec.lib.rfidreader.MetratecReader;
 
 /**
+ * Event handler that manages and dispatches RFID reader and tag events.
+ * This class runs in its own thread and processes events from a queue,
+ * forwarding them to registered listeners. It acts as a bridge between
+ * the reader's event generation and the application's event handling.
+ * 
+ * @param <T> the type of RFID tag handled by this event handler
  * @author man
  *
  */
@@ -23,13 +29,19 @@ public class EventHandler<T> implements Runnable, RfidReaderEventListener, RfidT
   private Thread internalThread;
   private String threadName;
   /**
-   * @param identifier instance name Create a new instance
+   * Create a new event handler instance.
+   * 
+   * @param identifier instance name used for thread naming and identification
    */
   public EventHandler(String identifier) {
     eventBuffer = new LinkedBlockingQueue<>(MAX_SIZE);
     this.threadName = "EH-" + identifier;
   }
 
+  /**
+   * Start the event handler thread.
+   * Creates and starts a new daemon thread to process events from the queue.
+   */
   public void start() {
     if(null != internalThread && internalThread.isAlive()) {
       return;
@@ -39,6 +51,10 @@ public class EventHandler<T> implements Runnable, RfidReaderEventListener, RfidT
     internalThread.start();
   }
 
+  /**
+   * Stop the event handler thread.
+   * Uses a poison pill approach to gracefully shutdown the event processing thread.
+   */
   public void stop() {
     // Poisson pill shutdown
     addEvent(new RfidEvent(null, 0l));
@@ -76,9 +92,10 @@ public class EventHandler<T> implements Runnable, RfidReaderEventListener, RfidT
   }
 
   /**
-   * Add a event to the internal buffer
+   * Add an event to the internal buffer for processing.
+   * If the buffer is full, the oldest event will be removed to make space.
    * 
-   * @param event the {@link RfidEvent}
+   * @param event the {@link RfidEvent} to be processed
    */
   public void addEvent(RfidEvent event) {
     if (eventBuffer.size() > 128 && LOGGER.isDebugEnabled()) {
@@ -99,53 +116,72 @@ public class EventHandler<T> implements Runnable, RfidReaderEventListener, RfidT
 //  }
 
   /**
-   * @param listener the listener to set
+   * Set the reader event listener for handling reader-specific events.
+   * 
+   * @param listener the {@link RfidReaderEventListener} to receive reader events
    */
   public void setReaderListener(RfidReaderEventListener listener) {
     this.readerListener = listener;
   }
 
   /**
-   * @param listener the listener to set
+   * Set the tag event listener for handling tag-specific events.
+   * 
+   * @param listener the {@link RfidTagEventListener} to receive tag events
    */
   public void setTagListener(RfidTagEventListener<T> listener) {
     this.tagListener = listener;
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Handles input change events from the RFID reader.
+   * Forwards the event to the internal event queue for processing.
    * 
-   * @see
-   * com.metratec.lib.rfidreader.event.RfidEventListener#inputChange(com.metratec.lib.rfidreader.
-   * event.RfidReaderInputChange)
+   * @param event the input change event to process
    */
   @Override
   public void inputChange(RfidReaderInputChange event) {
     addEvent(event);
   }
 
-  /*
-   * (non-Javadoc)
+  /**
+   * Handles connection state change events from the RFID reader.
+   * Forwards the event to the internal event queue for processing.
    * 
-   * @see
-   * com.metratec.lib.rfidreader.event.RfidEventListener#connectionState(com.metratec.lib.rfidreader
-   * .event.RfidReaderConnectionState)
+   * @param event the connection state change event to process
    */
   @Override
   public void connectionState(RfidReaderConnectionState event) {
     addEvent(event);
   }
 
-
+  /**
+   * Tests if the event handler thread is alive and running.
+   *
+   * @return <code>true</code> if the event handler thread is alive and running;
+   *         <code>false</code> otherwise
+   */
   public boolean isAlive() {
     return null != internalThread && internalThread.isAlive();
   }
 
+  /**
+   * Handles tag found events.
+   * Forwards the event to the internal event queue for processing.
+   * 
+   * @param tagEvent the tag found event to process
+   */
   @Override
   public void tagFound(RfidTagFound<T> tagEvent) {
     addEvent(tagEvent);
   }
 
+  /**
+   * Handles tag lost events.
+   * Forwards the event to the internal event queue for processing.
+   * 
+   * @param tagEvent the tag lost event to process
+   */
   @Override
   public void tagLost(RfidTagLost<T> tagEvent) {
     addEvent(tagEvent);

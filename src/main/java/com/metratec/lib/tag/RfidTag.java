@@ -7,6 +7,11 @@ package com.metratec.lib.tag;
 import java.io.Serializable;
 
 /**
+ * Abstract base class for all RFID tags.
+ * This class provides common properties and functionality for all types of RFID tags,
+ * including identification, timing information, signal strength, and data storage.
+ * Concrete tag implementations extend this class for specific tag types (UHF, HF, Mifare).
+ * 
  * @author mn
  *
  */

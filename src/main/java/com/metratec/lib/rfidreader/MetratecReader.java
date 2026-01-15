@@ -27,15 +27,20 @@ import com.metratec.lib.rfidreader.event.RfidTagLost;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * Abstract base class for all Metratec RFID readers. This class provides the core functionality
+ * for communicating with RFID readers, including connection management, command execution,
+ * event handling, and inventory management. Concrete reader implementations extend this class
+ * to provide specific functionality for different reader types (UHF, HF/ISO, NFC, Mifare).
+ * 
+ * @param <T> the type of RFID tag handled by this reader
  * @author jannis becke, matthias neumann
- * @param <T> the rfid tag instance
  *
  */
 public abstract class MetratecReader<T extends RfidTag> {
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
   protected final static int DEFAULT_RECEIVE_TIMEOUT = 10000;
   private int receiveTimeout = DEFAULT_RECEIVE_TIMEOUT;
-  private static final long DEFAULT_TAG_LOST_TIME = 5000;
+  protected static final long DEFAULT_TAG_LOST_TIME = 5000;
   private final Queue<String> responseBuffer = new ConcurrentLinkedQueue<>();
 
   private Lock lockInput0 = new ReentrantLock();
@@ -68,7 +73,7 @@ public abstract class MetratecReader<T extends RfidTag> {
   /**
    * Heart beat interval
    */
-  protected int heartBeatInterval = 5;
+  protected int heartBeatInterval = 10;
 
   private String identifier = "unknown";
 
@@ -115,6 +120,8 @@ public abstract class MetratecReader<T extends RfidTag> {
 
       @Override
       public void tagArrive(TagArrivedEvent<T> tagArrived) {
+        if (null == eventHandler)
+          return;
         eventHandler.tagFound(new RfidTagFound<T>(getIdentifier(), tagArrived.getTag(), tagArrived.getTimestamp()));
       }
 
@@ -125,6 +132,8 @@ public abstract class MetratecReader<T extends RfidTag> {
 
       @Override
       public void tagDeparted(TagDepartedEvent<T> tagDeparted) {
+        if (null == eventHandler)
+          return;
         eventHandler.tagLost(new RfidTagLost<T>(getIdentifier(), tagDeparted.getTag(), tagDeparted.getTimestamp()));
       }
 
@@ -179,6 +188,7 @@ public abstract class MetratecReader<T extends RfidTag> {
     }
   }
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   private void startHandler() {
     if (null != eventHandler && !eventHandler.isAlive()) {
       eventHandler.start();
@@ -191,6 +201,7 @@ public abstract class MetratecReader<T extends RfidTag> {
     }
   }
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   private void stopHandler() {
     if (null != eventHandler) {
       eventHandler.setReaderListener(null);
@@ -212,6 +223,7 @@ public abstract class MetratecReader<T extends RfidTag> {
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException throw {@link RFIDErrorCodes#SRT} if the reader has been reset
    */
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   protected String receiveData() throws CommConnectionException, RFIDReaderException {
     long endTime = System.currentTimeMillis() + receiveTimeout;
     while (responseBuffer.isEmpty()) {
@@ -327,11 +339,12 @@ public abstract class MetratecReader<T extends RfidTag> {
    * @throws RFIDReaderException if an error occurs
    * 
    */
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   public void startAndWait(long timeout) throws CommConnectionException, RFIDReaderException {
     start();
     long timeoutTime = System.currentTimeMillis() + timeout;
     while (!isConnected() && System.currentTimeMillis() < timeoutTime) {
-      if (receiveHandler.getHandlerState() == MetratecReader.STATE_WAITING_FOR_RECONNECT) {
+      if (receiveHandler.getHandlerState() == STATE_WAITING_FOR_RECONNECT) {
         Exception e = receiveHandler.getLastException();
         if (CommConnectionException.class.isInstance(e)) {
           throw (CommConnectionException) e;
@@ -590,6 +603,7 @@ public abstract class MetratecReader<T extends RfidTag> {
     this.input1 = input1;
   }
 
+  @SuppressWarnings("PMD.EmptyCatchBlock")
   protected void startNewInputThread(int input) {
     if (input == 0) {
       if (input0Working) {
@@ -605,7 +619,7 @@ public abstract class MetratecReader<T extends RfidTag> {
             boolean lastState = input0;
             while (input0Working) {
               try {
-                Thread.sleep(10);
+                sleep(10);
               } catch (InterruptedException e) {
               }
               try {
@@ -623,9 +637,11 @@ public abstract class MetratecReader<T extends RfidTag> {
             }
             if (lastState != input0) {
               input0 = lastState;
-              RfidReaderInputChange event =
-                  new RfidReaderInputChange(getIdentifier(), System.currentTimeMillis(), 0, input0);
-              eventHandler.inputChange(event);
+              if (null != eventHandler) {
+                RfidReaderInputChange event =
+                    new RfidReaderInputChange(getIdentifier(), System.currentTimeMillis(), 0, input0);
+                eventHandler.inputChange(event);
+              }
             }
           } finally {
             lockInput0.unlock();
@@ -647,7 +663,7 @@ public abstract class MetratecReader<T extends RfidTag> {
             boolean lastState = input1;
             while (input1Working) {
               try {
-                Thread.sleep(10);
+                sleep(10);
               } catch (InterruptedException e) {
               }
               try {
@@ -665,9 +681,11 @@ public abstract class MetratecReader<T extends RfidTag> {
             }
             if (lastState != input1) {
               input1 = lastState;
-              RfidReaderInputChange event =
-                  new RfidReaderInputChange(getIdentifier(), System.currentTimeMillis(), 1, input1);
-              eventHandler.inputChange(event);
+              if (null != eventHandler) {
+                RfidReaderInputChange event =
+                    new RfidReaderInputChange(getIdentifier(), System.currentTimeMillis(), 1, input1);
+                eventHandler.inputChange(event);
+              }
             }
           } finally {
             lockInput1.unlock();
@@ -697,7 +715,11 @@ public abstract class MetratecReader<T extends RfidTag> {
       throw new RFIDReaderException(RFIDErrorCodes.WPA, "No Hex String");
     byte[] data = new byte[str.length() / 2];
     for (int i = 0; i < data.length; i++) {
-      data[i] = (byte) Integer.parseInt(str.substring(i * 2, i * 2 + 2), 16);
+      try {
+        data[i] = (byte) Integer.parseInt(str.substring(i * 2, i * 2 + 2), 16);
+      } catch (NumberFormatException e) {
+        throw new RFIDReaderException(RFIDErrorCodes.NER, "Invalid hex response: " + str + ": " + e.getMessage());
+      }
     }
     return data;
   }
@@ -771,7 +793,7 @@ public abstract class MetratecReader<T extends RfidTag> {
    * @throws CommConnectionException if an communication exception occurs
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
    */
-  protected abstract void setHeartbeatInterval(int interval) throws RFIDReaderException, CommConnectionException;
+  public abstract void setHeartbeatInterval(int interval) throws RFIDReaderException, CommConnectionException;
 
   /**
    * Set the antenna port.
@@ -800,7 +822,8 @@ public abstract class MetratecReader<T extends RfidTag> {
   public abstract void setMultiplexAntennas(int numberOfAntennas) throws CommConnectionException, RFIDReaderException;
 
   /**
-   * Looks for all tags in range of the reader and get all tags back<br>
+   * Looks for all tags in range of the reader and get all tags back.<br>
+   * If a continuous inventory is running, the method returns the current stored tags.<br> 
    * 
    * @return List with the founded tags
    * @throws CommConnectionException if an communication exception occurs

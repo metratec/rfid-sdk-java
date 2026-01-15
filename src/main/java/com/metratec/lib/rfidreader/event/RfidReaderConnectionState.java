@@ -4,6 +4,10 @@
 package com.metratec.lib.rfidreader.event;
 
 /**
+ * Event representing a change in the connection state of an RFID reader.
+ * This event is fired when the reader connects or disconnects, providing
+ * information about the connection status and any associated messages.
+ * 
  * @author jannis becke
  *
  */

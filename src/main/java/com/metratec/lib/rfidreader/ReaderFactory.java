@@ -26,6 +26,10 @@ import com.metratec.lib.rfidreader.uhf.PulsarMX;
 import com.metratec.lib.tag.RfidTag;
 
 /**
+ * Factory class for creating instances of different Metratec RFID reader types.
+ * This factory automatically detects the reader type by querying the connected device
+ * and returns the appropriate reader instance. Supports UHF, HF/ISO, NFC, and Mifare readers.
+ * 
  * @author mn
  *
  */
@@ -53,7 +57,7 @@ public class ReaderFactory {
   @SuppressWarnings("PMD.EmptyCatchBlock")
   public static MetratecReader<?> connectReader(String identifier, ICommConnection connection,
       RfidReaderEventListener listener) throws CommConnectionException, RFIDReaderException {
-    MetratecReader<?> reader = new MetratecReaderGen1<RfidTag>(identifier, connection) {
+    MetratecReader<?> reader = new MetratecReaderAscii<RfidTag>(identifier, connection) {
       @Override
       public List<RfidTag> getInventory()
           throws RFIDReaderException, CommConnectionException {

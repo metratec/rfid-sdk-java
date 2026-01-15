@@ -8,6 +8,10 @@ import com.metratec.lib.tag.RfidTag;
 import com.metratec.lib.tag.UhfTag;
 
 /**
+ * Event representing an Ultra High Frequency (UHF) RFID tag occurrence.
+ * This event is fired when UHF tags are detected, lost, or undergo
+ * other state changes in UHF RFID readers.
+ * 
  * @author mn
  *
  */

@@ -16,7 +16,7 @@ To create the library, please run the `mvn package` command. This command also c
 <dependency>
     <groupId>com.metratec.lib.rfidreader</groupId>
     <artifactId>metratec-rfid-reader-library</artifactId>
-    <version>4.0</version>
+    <version>4.2</version>
 </dependency>
 ```
 

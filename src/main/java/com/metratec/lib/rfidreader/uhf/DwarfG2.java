@@ -17,7 +17,7 @@ import com.metratec.lib.rfidreader.RFIDReaderException;
  * @author mn
  *
  */
-public class DwarfG2 extends UHFReader {
+public class DwarfG2 extends UHFReaderAscii {
   /**
    * Minimal reader revison
    */
@@ -38,9 +38,9 @@ public class DwarfG2 extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param connection the communication interface (instance of {@link ICommConnection})
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
-  public DwarfG2(String identifier, ICommConnection connection, UHFReader.READER_MODE mode) {
+  public DwarfG2(String identifier, ICommConnection connection, UHFReaderAscii.READER_MODE mode) {
     super(identifier, connection, mode, MIN_READER_REVISION);
   }
 
@@ -87,9 +87,9 @@ public class DwarfG2 extends UHFReader {
    * 
    * @param identifier reader identifier
    * @param usbDeviceSerialNumber serial number of the usb reader
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
-  public DwarfG2(String identifier, String usbDeviceSerialNumber, UHFReader.READER_MODE mode) {
+  public DwarfG2(String identifier, String usbDeviceSerialNumber, UHFReaderAscii.READER_MODE mode) {
     super(identifier, new UsbConnection(usbDeviceSerialNumber, 115200), mode, MIN_READER_REVISION);
   }
 
@@ -99,9 +99,9 @@ public class DwarfG2 extends UHFReader {
    * @param identifier reader identifier
    * @param ipAddress ip address of the ethernet reader
    * @param port port of the ethernet reader
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
-  public DwarfG2(String identifier, String ipAddress, int port, UHFReader.READER_MODE mode) {
+  public DwarfG2(String identifier, String ipAddress, int port, UHFReaderAscii.READER_MODE mode) {
     super(identifier, new TcpConnection(ipAddress, port), mode, MIN_READER_REVISION);
   }
 
@@ -115,10 +115,10 @@ public class DwarfG2 extends UHFReader {
    * @param stopBit rs232 stopbit
    * @param parity rs232 parity
    * @param flowControl rs232 flowcontrol
-   * @param mode the used RFID communication standart. ({@link UHFReader READER_MODE})
+   * @param mode the used RFID communication standart. ({@link UHFReaderAscii READER_MODE})
    */
   public DwarfG2(String identifier, String portName, int baudrate, int dataBit, int stopBit, int parity,
-      int flowControl, UHFReader.READER_MODE mode) {
+      int flowControl, UHFReaderAscii.READER_MODE mode) {
     super(identifier, new Rs232Connection(portName, baudrate, dataBit, stopBit, parity, flowControl), mode,
         MIN_READER_REVISION);
   }
