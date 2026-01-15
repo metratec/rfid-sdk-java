@@ -287,10 +287,9 @@ public class Inventory<T extends RfidTag> {
       public void run() {
         checkingInventory();
       }
-    });
+    }, identifier);
     internalThread.setDaemon(true);
     internalThread.start();
-
   }
 
   /**

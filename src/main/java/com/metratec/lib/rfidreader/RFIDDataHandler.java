@@ -50,6 +50,7 @@ class RFIDDataHandler {
   private Exception lastException = null;
   private int heartBeat = -1;
   private boolean checkHeartbeat = false;
+  private boolean connectionLost = false;
   private long lastReceiveTime = 0;
   private boolean isRunning = false;
   // private static final int checkReachableTimeout = 3000;
@@ -240,8 +241,8 @@ class RFIDDataHandler {
               if (!sendBuffer.isEmpty()) {
                 String command = sendBuffer.poll();
                 if (logger.isTraceEnabled()) {
-                  logger.trace(identifier + " send: "
-                      + command.replaceAll("\r", "<CR>").replaceAll("\n", "<LF>"));
+                  logger.trace("{} send: {}", identifier,
+                      command.replaceAll("\r", "<CR>").replaceAll("\n", "<LF>"));
                 }
                 connection.send(command);
               }
@@ -339,6 +340,11 @@ class RFIDDataHandler {
   }
 
   private void checkHeartBeat() throws CommConnectionException {
+    if (connectionLost) {
+      connectionLost = false;
+      throw new CommConnectionException(ICommConnection.CONNECTION_LOST,
+          "Connection lost (no heart beat)");
+    }
     if (!checkHeartbeat) {
       return;
     }
@@ -348,9 +354,16 @@ class RFIDDataHandler {
     }
   }
 
+  /**
+   * Call to initiate a reconnect
+   */
+  public void connectionLost() {
+    connectionLost = true;
+  }
+
   private void handleReceivedData(StringBuilder data) {
     if (logger.isTraceEnabled()) {
-      logger.trace("{}  resp: {}", identifier,
+      logger.trace("{} resp: {}", identifier,
           data.toString().replaceAll("\r", "<CR>").replaceAll("\n", "<LF>"));
     }
     lastReceiveTime = System.currentTimeMillis();
@@ -364,6 +377,20 @@ class RFIDDataHandler {
     this.heartBeat = interval * 1000;
     lastReceiveTime = System.currentTimeMillis();
     checkHeartbeat = 0 < heartBeat;
+  }
+
+  /**
+   * @return the lastReceiveTime
+   */
+  public long getLastReceiveTime() {
+    return lastReceiveTime;
+  }
+
+  /**
+   * @param lastReceiveTime the lastReceiveTime to set
+   */
+  public void setLastReceiveTime(long lastReceiveTime) {
+    this.lastReceiveTime = lastReceiveTime;
   }
 
   /**

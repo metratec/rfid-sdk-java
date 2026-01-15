@@ -1228,30 +1228,34 @@ public class ISOReader extends MetratecReaderGen1<HfTag> {
     return tags;
   }
 
-  /**
-   * Looks for all tags in range of the reader and call events with founded tags.
-   * 
-   * @param ssl true for single slot
-   * @param ont if true only new tags in the field are returned
-   * @throws CommConnectionException if an communication error occurs
-   * @throws RFIDReaderException if an reader error occurs
-   */
-  public void scanInventory(boolean ssl, boolean ont) throws CommConnectionException, RFIDReaderException {
-    if (scanningForTags) {
-      throw new RFIDReaderException(RFIDErrorCodes.BSY, "Reader is already scanning for tags");
-    }
-    scanningForTags = true;
-    send("CNR INV", afi != 0 ? String.format("AFI %02X", afi) : null, ont ? "ONT" : null, ssl ? "SSL" : null);
-  }
-
   /*
    * (non-Javadoc)
    * 
    * @see com.metratec.lib.rfidreader.StandardReader#startInventory()
    */
   @Override
-  public void scanInventory() throws CommConnectionException, RFIDReaderException {
-    scanInventory(false, false);
+  public void startInventory(long tagLostTime) throws CommConnectionException, RFIDReaderException {
+    startInventory(tagLostTime, false, false);
+  }
+
+  /**
+   * Looks for all tags in range of the reader and call events with founded tags.
+   * 
+   * @param tagLostTime timeout in milliseconds for tag lost event
+   * @param ssl true for single slot
+   * @param ont if true only new tags in the field are returned
+   * @throws CommConnectionException
+   * @throws RFIDReaderException
+   */
+  public void startInventory(long tagLostTime, boolean ssl, boolean ont) throws CommConnectionException, RFIDReaderException {
+    if (scanningForTags) {
+      throw new RFIDReaderException(RFIDErrorCodes.BSY, "Reader is already scanning for tags");
+    }
+    scanningForTags = true;
+    getInternalInventory().setKeepTime(tagLostTime);
+    getInternalInventory().clear();
+    getInternalInventory().start();
+    send("CNR INV", afi != 0 ? String.format("AFI %02X", afi) : null, ont ? "ONT" : null, ssl ? "SSL" : null);
   }
 
   /*

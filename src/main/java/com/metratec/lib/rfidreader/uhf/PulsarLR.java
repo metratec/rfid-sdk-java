@@ -83,6 +83,7 @@ public class PulsarLR extends UHFReaderGen2 {
   protected String prepareDevice() throws CommConnectionException, RFIDReaderException {
     String message = super.prepareDevice();
     getCurrentAntennaPowers();
+    getCurrentConnectedMultiplexer();
     return message;
   }
 

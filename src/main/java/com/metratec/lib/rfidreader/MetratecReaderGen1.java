@@ -22,14 +22,11 @@ import com.metratec.lib.tag.RfidTag;
  */
 public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecReader<T> {
 
-  
-
   private boolean wasCRC = false;
   private boolean wasEOF = false;
   private boolean isCRC = false;
-
   private int currentAntennaPort;
-
+  private Thread checkConnectionThread = null;
   
   // private InventoryEventHandler inventoryHandler = new InventoryEventHandler(getIdentifier());
 
@@ -746,9 +743,9 @@ public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecRead
         receiveHandler.setHeartBeatInterval(heartBeatInterval);
         return;
       } else {
-        heartBeatInterval = -1;
-        receiveHandler.setHeartBeatInterval(heartBeatInterval);
+        receiveHandler.setHeartBeatInterval(-1);
         if (response[0].startsWith("UCO")) {
+          startConnectionCheckThread(Math.min(interval, 300));
           return;
         } else {
           getLogger().warn("Reader did not respond accurately");
@@ -762,6 +759,38 @@ public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecRead
       }
       handleUnexpectedResponse(response[0], "Disable HBT");
     }
+  }
+
+  private void startConnectionCheckThread(int heartBeatInterval) {
+    if (null != checkConnectionThread && checkConnectionThread.isAlive()) {
+      return;
+    }
+    checkConnectionThread = new Thread(() -> {
+      long lastCheckTime = System.currentTimeMillis();
+      long nextCheckTime = lastCheckTime + heartBeatInterval * 1000;
+      while(receiveHandler.isConnected()) {
+        if(nextCheckTime > System.currentTimeMillis()) {
+          try {
+            Thread.sleep(200);
+          } catch (InterruptedException e) {
+            getLogger().trace("check connection sleep interrupted");
+          }
+          continue;
+        }
+        if (receiveHandler.getLastReceiveTime() <= lastCheckTime) {
+          try {
+            getRevision();
+          } catch (CommConnectionException | RFIDReaderException e) {
+            // Connection Error
+            receiveHandler.connectionLost();
+          }
+        }
+        lastCheckTime = receiveHandler.getLastReceiveTime();
+        nextCheckTime = System.currentTimeMillis() + heartBeatInterval * 1000;
+      }
+    }, getIdentifier()+"ConnectionCheck");
+    checkConnectionThread.setDaemon(true);
+    checkConnectionThread.start();
   }
 
   /**
@@ -927,34 +956,34 @@ public abstract class MetratecReaderGen1<T extends RfidTag> extends MetratecRead
    */
   public abstract void setPower(int power) throws CommConnectionException, RFIDReaderException;
 
-  /**
-   * Looks for all tags in range of the reader and call events with founded tags.
-   * 
-   * @throws CommConnectionException if an communication exception occurs
-   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
-   *         range, ..)
-   */
-  public abstract void scanInventory() throws CommConnectionException, RFIDReaderException;
+  // /**
+  //  * Looks for all tags in range of the reader and call events with founded tags.
+  //  * 
+  //  * @throws CommConnectionException if an communication exception occurs
+  //  * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
+  //  *         range, ..)
+  //  */
+  // public abstract void scanInventory() throws CommConnectionException, RFIDReaderException;
   
-  /**
-   * Looks for all tags in range of the reader and call events with founded tags.
-   * 
-   * @param tagKeepTime tag keep time
-   * @throws CommConnectionException if an communication exception occurs
-   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
-   *         range, ..)
-   */
-  public void scanInventory(long tagKeepTime) throws CommConnectionException, RFIDReaderException{
-    getInternalInventory().setKeepTime(tagKeepTime);
-    getInternalInventory().clear();
-    getInternalInventory().start();
-    scanInventory();
-  }
+  // /**
+  //  * Looks for all tags in range of the reader and call events with founded tags.
+  //  * 
+  //  * @param tagKeepTime tag keep time
+  //  * @throws CommConnectionException if an communication exception occurs
+  //  * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
+  //  *         range, ..)
+  //  */
+  // public void scanInventory(long tagKeepTime) throws CommConnectionException, RFIDReaderException{
+  //   getInternalInventory().setKeepTime(tagKeepTime);
+  //   getInternalInventory().clear();
+  //   getInternalInventory().start();
+  //   scanInventory();
+  // }
 
-  @Override
-  public void startInventory(long tagLostTime) throws CommConnectionException, RFIDReaderException {
-    scanInventory(tagLostTime);
-  }
+  // @Override
+  // public void startInventory(long tagLostTime) throws CommConnectionException, RFIDReaderException {
+  //   scanInventory(tagLostTime);
+  // }
 
   @Override
   public List<T> stopInventory() throws CommConnectionException, RFIDReaderException {

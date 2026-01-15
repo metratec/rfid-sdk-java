@@ -66,23 +66,23 @@ public class ReaderFactory {
       }
 
       @Override
-      public void scanInventory() throws CommConnectionException, RFIDReaderException {
-
-      }
-
-      @Override
       public void setAntennaPort(int port) throws CommConnectionException, RFIDReaderException {
 
       }
 
       @Override
       public void setPower(int power) throws CommConnectionException, RFIDReaderException {
-        
+
       }
 
       @Override
       public void setMultiplexAntennas(int numberOfAntennas) {
-        
+
+      }
+
+      @Override
+      public void startInventory(long tagLostTime) throws CommConnectionException, RFIDReaderException {
+ 
       }
     };
     try {

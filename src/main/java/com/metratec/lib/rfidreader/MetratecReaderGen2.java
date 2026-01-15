@@ -645,6 +645,27 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
   }
 
   /**
+   * Sets the state of the output pins
+   * 
+   * @param state the pin state true for high state, false for low state
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
+   */
+  public void setOutputs(List<Boolean> state) throws RFIDReaderException, CommConnectionException {
+    while (state.size() < 4) {
+      state.add(null);
+    }
+    String command = "AT+OUT=";
+    for (int i = 0; i < 4; i++) {
+      command += null == state.get(i) ? "" : state.get(i) ? "1" : "0";
+      if (i < 3) {
+        command += ",";
+      }
+    }
+    communicateSynchronized(command);
+  }
+
+  /**
    * Gets the current output pin state
    * 
    * @param pin output pin
@@ -763,6 +784,7 @@ public abstract class MetratecReaderGen2<T extends RfidTag> extends MetratecRead
    */
   public void setMultiplexAntennas(List<Integer> sequence) throws CommConnectionException, RFIDReaderException {
     communicateSynchronized("AT+MUX", sequence.toArray());
+    useSingleAntenna = false;
   }
 
   /**

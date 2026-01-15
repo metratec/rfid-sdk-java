@@ -4,6 +4,13 @@ Java library for controlling the metratec rfid readers
 
 ## Version 4.1
 
+### 4.1.3
+
+* Ascii Reader Start/Stop Inventory updated
+* Start a check connection thread if a reader heart beat is not available
+
+### 4.1.2
+
 ### 4.1.1
 
 * use connection library without the javax.xml.bind dependency

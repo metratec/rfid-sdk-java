@@ -2000,21 +2000,20 @@ public class UHFReader extends MetratecReaderGen1<UhfTag> {
 
   }
 
-  /**
-   * Looks for all tags in range of the reader and call events with founded tags.
+  /*
+   * (non-Javadoc)
    * 
-   * @throws CommConnectionException if an communication exception occurs
-   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
-   *         range, ..)
+   * @see com.metratec.lib.rfidreader.StandardReader#startInventory()
    */
   @Override
-  public void scanInventory() throws CommConnectionException, RFIDReaderException {
-    scanInventory(false, false, false);
+  public void startInventory(long tagLostTime) throws CommConnectionException, RFIDReaderException {
+    startInventory(tagLostTime, false, false, false);
   }
 
   /**
    * Looks for all tags in range of the reader and call events with founded tags.
    * 
+   * @param tagLostTime timeout in milliseconds for tag lost event
    * @param singSlot Single Slot (sets Q and IR values to zero for this round)
    * @param onlyNewTag This flag causes the reader to not reset the state of tags via a select
    *        command. Under normal conditions, this causes the tags to be found only once as long as
@@ -2027,12 +2026,14 @@ public class UHFReader extends MetratecReaderGen1<UhfTag> {
    * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
    *         range, ..)
    */
-  public void scanInventory(boolean singSlot, boolean onlyNewTag, boolean secure)
-      throws CommConnectionException, RFIDReaderException {
+  public void startInventory(long tagLostTime, boolean singSlot, boolean onlyNewTag, boolean secure) throws CommConnectionException, RFIDReaderException {
     if (null != lastInventoryCall) {
       throw new RFIDReaderException(RFIDErrorCodes.BSY, "Reader is already scanning for tags");
     }
     lastInventoryCall = MEMBANK.EPC;
+    getInternalInventory().setKeepTime(tagLostTime);
+    getInternalInventory().clear();
+    getInternalInventory().start();
     send("CNR INV", singSlot ? "SSL" : null, onlyNewTag ? "ONT" : null, secure ? "SEC" : null);
   }
 

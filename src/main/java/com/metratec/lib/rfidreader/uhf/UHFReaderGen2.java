@@ -194,15 +194,17 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
    * @throws RFIDReaderException if an reader error occurs
    */
   public UHFInventorySetting getInventorySettings() throws CommConnectionException, RFIDReaderException {
-    if (null != inventorySetting) {
-      return inventorySetting;
-    }
+    // if (null != inventorySetting) {
+    //   return inventorySetting;
+    // }
     String response = communicateSynchronized("AT+INVS?");
-    String[] data = splitLine(response);
-    // +INVS: 0,0,0,0
+    String[] data = splitLine(response.substring(7));
+    // +INVS: 0,1,0,0,0,ALL,A,-100
     try {
       inventorySetting = new UHFInventorySetting(data[0].equals("1"), data[1].equals("1"), data[2].equals("1"),
-          data.length > 3 && data[3].equals("1"));
+          data.length > 3 && data[3].equals("1"), data.length > 4 && data[4].equals("1"),
+          data.length > 5 ? data[5] : null, data.length > 6 ? data[6] : null,
+          data.length > 7 ? Integer.parseInt(data[7]) : null);
       return inventorySetting;
     } catch (IndexOutOfBoundsException e) {
       throw new RFIDReaderException(RFIDErrorCodes.NER, response);
@@ -218,7 +220,8 @@ public class UHFReaderGen2 extends MetratecReaderGen2<UhfTag> {
    */
   public void setInventorySettings(UHFInventorySetting settings) throws CommConnectionException, RFIDReaderException {
     communicateSynchronized("AT+INVS", settings.onlyNewTag() ? "1" : "0", settings.withRssi() ? "1" : "0",
-        settings.withTid() ? "1" : "0", settings.isFastStart() ? "1" : "0");
+        settings.withTid() ? "1" : "0", settings.isFastStart() ? "1" : "0", settings.isPhase() ? "1" : "0",
+        settings.getSelect(), settings.getTarget(), settings.getRssiThreshold());
     this.inventorySetting = settings;
   }
 
