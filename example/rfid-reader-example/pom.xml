@@ -21,7 +21,7 @@
         <dependency>
             <groupId>com.metratec.lib.rfidreader</groupId>
             <artifactId>metratec-rfid-reader-library</artifactId>
-            <version>4.2-SNAPSHOT</version>
+            <version>4.2.1</version>
         </dependency>
 
         <!-- logging -->

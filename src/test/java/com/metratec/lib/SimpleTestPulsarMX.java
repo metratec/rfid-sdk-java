@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 by metraTec GmbH All rights reserved.
+ * Copyright (c) 2026 by metraTec GmbH All rights reserved.
  *******************************************************************************/
 package com.metratec.lib;
 

@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 by metraTec GmbH All rights reserved.
+ * Copyright (c) 2026 by metraTec GmbH All rights reserved.
  *******************************************************************************/
 package com.metratec.lib.rfidreader;
 
@@ -96,6 +96,19 @@ public abstract class MetratecReaderAscii<T extends RfidTag> extends MetratecRea
     } else {
       throw new CommConnectionException(ICommConnection.CONNECTION_LOST, "not connected");
     }
+  }
+
+  /**
+   * Sends an command to the connected reader (appends crc and command end sign automatically)
+   * 
+   * @param command command
+   * @param parameters command parameters
+   * @return the reader answer as a string array
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an reader exception occurs
+   */
+  public String[] executeCommand(String command, Object... parameters) throws CommConnectionException, RFIDReaderException {
+    return communicateSynchronized(command, parameters);
   }
 
   /**

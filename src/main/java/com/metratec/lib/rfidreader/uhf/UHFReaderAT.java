@@ -951,20 +951,6 @@ public class UHFReaderAT extends MetratecReaderAT<UhfTag> {
   }
 
   /**
-   * Send a custom command
-   * 
-   * @param command the reader command
-   * @param parameters the command parameters
-   * @return the reader response
-   * @throws CommConnectionException if an communication exception occurs
-   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of range, ..)
-   */
-  public String executeCommand(String command, Object... parameters)
-      throws CommConnectionException, RFIDReaderException {
-    return communicateSynchronized(command, parameters);
-  }
-
-  /**
    * This command tags to an Impinj M775 tag using the proprietary authentication command. It sends a random challenge
    * to the transponder and gets the authentication payload in return. You can use this to check the authenticity of the
    * transponder with Impinj Authentication Service. For further details, please contact Impinj directly.

@@ -4,6 +4,11 @@ Java library for controlling the metratec rfid readers
 
 ## Version 4.2
 
+### 4.2.1
+
+* reset rf interface method added to the hf ascii readers
+* copyright information adjusted
+
 ### 4.2
 
 * NFC reader support added

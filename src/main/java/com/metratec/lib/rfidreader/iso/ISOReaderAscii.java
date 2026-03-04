@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Copyright (c) 2023 by metraTec GmbH All rights reserved.
+ * Copyright (c) 2026 by metraTec GmbH All rights reserved.
  *******************************************************************************/
 package com.metratec.lib.rfidreader.iso;
 
@@ -913,6 +913,24 @@ public class ISOReaderAscii extends MetratecReaderAscii<HfTag> {
     } else {
       this.sri = sri;
     }
+  }
+
+  /**
+   * Timer controlled RF field reset. Turns the field off, waits for the specified number of ms and
+   * then turns the field back on. Can be useful to reset all tags in the field without managing
+   * everything
+   * 
+   * @param milliseconds milliseconds
+   * @throws CommConnectionException if an communication exception occurs
+   * @throws RFIDReaderException if an protocol exception occurs (e.g. CRC error, value out of
+   *         range, ..)
+   */
+  public void resetRFInterface(int milliseconds)
+      throws CommConnectionException, RFIDReaderException {
+    String[] answer = communicateSynchronized("SRI", "TIM", milliseconds);
+    if (answer[0].equals(RESPONSE_OK))
+      return;
+    handleUnexpectedResponse(answer[0], "Reset RF interface (" + milliseconds + " ms)");
   }
 
   /**
